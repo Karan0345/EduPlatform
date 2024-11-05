@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPlatform - Online Learning</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="text-xl font-semibold text-gray-800">EduPlatform</div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-gray-800">Home</a>
+                    <a href="#courses" class="text-gray-600 hover:text-gray-800">Courses</a>
+                    <a href="#blog" class="text-gray-600 hover:text-gray-800">Blog</a>
+                    <button id="loginBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Login</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="bg-blue-600 text-white py-16">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">Transform Your Future with Online Learning</h1>
+            <p class="text-xl mb-8">Discover courses from top instructors at exclusive discounts</p>
+            <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100">
+                Explore Courses
+            </button>
+        </div>
+    </div>
+
+    <!-- Featured Courses Section -->
+    <div id="courses" class="max-w-6xl mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold mb-8 text-center">Featured Courses</h2>
+        <div id="courseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Courses will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Blog Section -->
+    <div id="blog" class="bg-white py-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-8 text-center">Latest from Our Blog</h2>
+            <div id="blogPosts" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Blog posts will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-4">Admin Dashboard</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-2">Blog Title</label>
+                    <input type="text" id="blogTitle" class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label class="block mb-2">Content</label>
+                    <textarea id="blogContent" class="w-full border p-2 rounded h-32"></textarea>
+                </div>
+                <div>
+                    <label class="block mb-2">Publish Date</label>
+                    <input type="datetime-local" id="publishDate" class="w-full border p-2 rounded">
+                </div>
+                <button onclick="submitBlogPost()" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+                    Schedule Post
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-4">Secure Checkout</h3>
+            <div class="space-y-4">
+                <div class="flex space-x-4 mb-4">
+                    <button onclick="selectPaymentMethod('card')" class="flex-1 p-4 border rounded hover:bg-gray-100">
+                        Credit/Debit Card
+                    </button>
+                    <button onclick="selectPaymentMethod('upi')" class="flex-1 p-4 border rounded hover:bg-gray-100">
+                        UPI
+                    </button>
+                </div>
+                <div id="cardPayment" class="hidden space-y-4">
+                    <input type="text" placeholder="Card Number" class="w-full border p-2 rounded">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="MM/YY" class="border p-2 rounded">
+                        <input type="text" placeholder="CVV" class="border p-2 rounded">
+                    </div>
+                </div>
+                <div id="upiPayment" class="hidden">
+                    <input type="text" placeholder="UPI ID" class="w-full border p-2 rounded">
+                </div>
+                <button onclick="processPayment()" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
+                    Pay Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample course data
+        const courses = [
+            {
+                id: 1,
+                title: 'Web Development Bootcamp',
+                price: 99.99,
+                discount: 20,
+                instructor: 'John Doe',
+                image: '/api/placeholder/400/250'
+            },
+            {
+                id: 2,
+                title: 'Data Science Fundamentals',
+                price: 149.99,
+                discount: 15,
+                instructor: 'Jane Smith',
+                image: '/api/placeholder/400/250'
+            },
+            {
+                id: 3,
+                title: 'Mobile App Development',
+                price: 129.99,
+                discount: 25,
+                instructor: 'Mike Johnson',
+                image: '/api/placeholder/400/250'
+            }
+        ];
+
+        // Sample blog posts
+        const blogPosts = [
+            {
+                title: 'Getting Started with Programming',
+                content: 'Learn the basics of programming with our comprehensive guide...',
+                publishDate: '2024-11-10T10:00:00',
+                author: 'John Doe'
+            },
+            {
+                title: 'Career Paths in Tech',
+                content: 'Explore various career opportunities in the tech industry...',
+                publishDate: '2024-11-12T14:00:00',
+                author: 'Jane Smith'
+            }
+        ];
+
+        // Render courses
+        function renderCourses() {
+            const courseGrid = document.getElementById('courseGrid');
+            courseGrid.innerHTML = courses.map(course => `
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <img src="${course.image}" alt="${course.title}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">${course.title}</h3>
+                        <p class="text-gray-600 mb-4">Instructor: ${course.instructor}</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-2xl font-bold text-blue-600">$${(course.price * (100 - course.discount) / 100).toFixed(2)}</span>
+                                <span class="text-gray-400 line-through ml-2">$${course.price}</span>
+                            </div>
+                            <button onclick="startPurchase(${course.id})" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                Enroll Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render blog posts
+        function renderBlogPosts() {
+            const blogContainer = document.getElementById('blogPosts');
+            blogContainer.innerHTML = blogPosts.map(post => `
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-2">${post.title}</h3>
+                    <p class="text-gray-600 mb-4">${post.content}</p>
+                    <div class="text-sm text-gray-500">
+                        By ${post.author} | Publishing: ${moment(post.publishDate).format('MMM D, YYYY h:mm A')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Payment handling
+        function startPurchase(courseId) {
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function selectPaymentMethod(method) {
+            document.getElementById('cardPayment').classList.add('hidden');
+            document.getElementById('upiPayment').classList.add('hidden');
+            document.getElementById(`${method}Payment`).classList.remove('hidden');
+        }
+
+        function processPayment() {
+            alert('Payment processed successfully!');
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        // Blog management
+        function submitBlogPost() {
+            const title = document.getElementById('blogTitle').value;
+            const content = document.getElementById('blogContent').value;
+            const publishDate = document.getElementById('publishDate').value;
+
+            blogPosts.push({
+                title,
+                content,
+                publishDate,
+                author: 'Admin'
+            });
+
+            renderBlogPosts();
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCourses();
+            renderBlogPosts();
+        });
+
+        // Admin panel toggle
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            document.getElementById('adminModal').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
